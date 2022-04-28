@@ -28,20 +28,15 @@ def get_occupation_by_region(data, region):
         .sum()
         .unstack(level="Unidad")
     )
-    # ~ return (
-    # ~ data.query(f"CCAA == '{region}'")
-    # ~ .groupby(["Fecha", "Unidad"])["OCUPADAS_COVID19"]
-    # ~ .sum()
-    # ~ .unstack(level="Unidad")
-    # ~ )
 
 
 def load_data(st):
-    data_src = st.radio("Data source", options=("URL", "Local file"), index=1)
-    if data_src == "URL":
-        return load_from_url(st=st)
-    elif data_src == "Local file":
-        return load_from_file(st=st)
+    # ~ data_src = st.radio("Data source", options=("URL", "Local file"), index=1)
+    # ~ if data_src == "URL":
+    # ~ return load_from_url(st=st)
+    # ~ elif data_src == "Local file":
+    # ~ return load_from_file(st=st)
+    return load_from_url(st=st)
 
 
 def load_from_file(st):
@@ -50,9 +45,9 @@ def load_from_file(st):
 
 
 def load_from_url(st):
-    default_url = "https://www.sanidad.gob.es/profesionales/saludPublica/ccayes/alertasActual/nCov/documentos/Datos_Capacidad_Asistencial_Historico_18032022.csv"
-    url = st.text_input("Data URL")
-    st.write(default_url)
+    date = st.date_input("Día")
+    formatted_date = date.strftime("%d%m%Y")
+    url = f"https://www.sanidad.gob.es/profesionales/saludPublica/ccayes/alertasActual/nCov/documentos/Datos_Capacidad_Asistencial_Historico_{formatted_date}.csv"
     return st.cache(parse_data)(url)
 
 
