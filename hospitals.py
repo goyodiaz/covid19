@@ -3,7 +3,13 @@ import pandas as pd
 
 def occupation_by_region(st, data):
     region = st.selectbox("Comunidad", ["ESPAÑA"] + get_regions(data), key=0)
-    chart_data = get_occupation_by_region(data=data, region=region)
+    region_data = get_occupation_by_region(data=data, region=region)
+
+    start, end = region_data.index[[0, -1]].date
+    start, end = st.slider('Periodo', min_value=start, max_value=end, value=(start, end))
+    st.write(start, end)
+    chart_data = region_data[start:end]
+
     st.area_chart(chart_data.rename_axis(columns=None))
     st.write(
         chart_data.assign(**{"Total ocupadas COVID-19": chart_data.sum(axis="columns")})
@@ -31,11 +37,6 @@ def get_occupation_by_region(data, region):
 
 
 def load_data(st):
-    # ~ data_src = st.radio("Data source", options=("URL", "Local file"), index=1)
-    # ~ if data_src == "URL":
-    # ~ return load_from_url(st=st)
-    # ~ elif data_src == "Local file":
-    # ~ return load_from_file(st=st)
     return load_from_url(st=st)
 
 
@@ -48,6 +49,7 @@ def load_from_url(st):
     date = st.date_input("Día")
     formatted_date = date.strftime("%d%m%Y")
     url = f"https://www.sanidad.gob.es/profesionales/saludPublica/ccayes/alertasActual/nCov/documentos/Datos_Capacidad_Asistencial_Historico_{formatted_date}.csv"
+    st.write(f'Origen de los datos: {url}')
     return st.cache(parse_data)(url)
 
 
