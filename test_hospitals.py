@@ -38,14 +38,17 @@ class TestHospitals(unittest.TestCase):
         reg_data = hospitals.get_occupation_by_region(data, region="ESPAÑA")
         expected = pd.DataFrame(
             [[33, 5, 2]],
-            columns=[
-                "Hospitalización convencional",
-                "U. Críticas CON respirador",
-                "U. Críticas SIN respirador",
-            ],
-            index=[pd.Timestamp("2020-08-01")],
+            columns=pd.Index(
+                [
+                    "Hospitalización convencional",
+                    "U. Críticas CON respirador",
+                    "U. Críticas SIN respirador",
+                ],
+                name="Unidad",
+            ),
+            index=pd.Index([pd.Timestamp("2020-08-01")], name="Fecha"),
         )
-        pd.testing.assertFrameEqual(expected, reg_data)
+        pd.testing.assert_frame_equal(expected, reg_data)
 
 
 if __name__ == "__main__":
