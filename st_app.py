@@ -4,81 +4,49 @@ import streamlit as st
 import hospitals
 
 
-def altair_chart(chart_data):
-    st.line_chart(chart_data)
+def main():
+    TITLE = "Hospitalizaciones COVID-19"
+    st.set_page_config(
+        page_title=TITLE,
+        layout="wide",
+        menu_items={"About": "Brough to you by Goyo"},
+    )
+    st.title(TITLE)
 
+    date = st.date_input("Día")
 
-def cases_deaths():
-    st.header("Casos y muertes")
-    data = load_cases_deaths_data()
+    url = hospitals.url_by_date(date=date)
+
+    st.write(f"Origen de los datos: {url}")
+
+    # XXX decouple streamlit and parsing
+    data = st.cache(hospitals.parse_data)(url)
     if data is None:
         st.stop()
-    variable = st.radio("Variable", options=("Cases", "Deaths"), index=1)
-    if variable == "Cases":
-        cases(data=data)
-    elif variable == "Deaths":
-        deaths(data=data)
+
+    region = st.selectbox("Comunidad", ["ESPAÑA"] + hospitals.get_regions(data), key=0)
+
+    region_data = hospitals.get_occupation_by_region(data=data, region=region)
+    min_date, max_date = region_data.index[[0, -1]].date
+
+    if min_date < max_date:
+        start, end = st.slider(
+            "Periodo",
+            min_value=min_date,
+            max_value=max_date,
+            value=(min_date, max_date),
+        )
     else:
-        raise ValueError(variable)
+        start, end = min_date, max_date
+    st.write(start, end)
+
+    chart_data = region_data[start:end]
+
+    st.area_chart(chart_data.rename_axis(columns=None))
+    st.write(
+        chart_data.assign(**{"Total ocupadas COVID-19": chart_data.sum(axis="columns")})
+    )
 
 
-def cases(data):
-    chart_data = data.groupby("fecha")["num_casos"].sum().asfreq("D").rename("Casos")
-    st.line_chart(chart_data)
-    st.write(chart_data)
-
-
-def deaths(data):
-    chart_data = data.groupby("fecha")["num_def"].sum().asfreq("D").rename("Muertes")
-    st.line_chart(chart_data)
-    st.write(chart_data)
-
-
-def load_cases_deaths_data():
-    data_src = st.radio("Data source", options=("URL", "Local file"), index=1)
-    if data_src == "URL":
-        return load_cases_deaths_from_url()
-    elif data_src == "Local file":
-        return load_cases_deaths_from_file()
-
-
-def load_cases_deaths_from_url():
-    default_url = "https://cnecovid.isciii.es/covid19/resources/casos_hosp_uci_def_sexo_edad_provres.csv"
-    url = st.text_input("Data URL")
-    default_url
-    return parse_cases_deaths_data(url)
-
-
-def load_cases_deaths_from_file():
-    file = st.file_uploader("Data file", type="csv")
-    return parse_cases_deaths_data(file)
-
-
-@st.cache
-def parse_cases_deaths_data(io):
-    if not io:
-        return None
-    data = pd.read_csv(io, sep=",", encoding="latin")
-    data["fecha"] = pd.to_datetime(data["fecha"], format="%Y-%m-%d")
-    return data
-
-
-def hospitalizations():
-    return hospitals.hospitalizations(st=st)
-
-
-def set_task(task):
-    st.session_state.task = task
-
-
-def run_task():
-    st.session_state.task()
-
-
-st.session_state.setdefault("task", lambda: None)
-st.title("COVID-19")
-
-col1, col2 = st.columns(2)
-col1.button("Capacidad asistencial", on_click=set_task, args=(hospitalizations,))
-col2.button("Casos y muertes", on_click=set_task, args=(cases_deaths,))
-run_task()
+if __name__ == "__main__":
+    main()
