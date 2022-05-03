@@ -6,7 +6,8 @@ def occupation_by_region(st, data):
     region_data = get_occupation_by_region(data=data, region=region)
 
     start, end = region_data.index[[0, -1]].date
-    start, end = st.slider('Periodo', min_value=start, max_value=end, value=(start, end))
+    start, end = choose_period(st=st, min_value=start, max_value=end)
+
     st.write(start, end)
     chart_data = region_data[start:end]
 
@@ -14,6 +15,12 @@ def occupation_by_region(st, data):
     st.write(
         chart_data.assign(**{"Total ocupadas COVID-19": chart_data.sum(axis="columns")})
     )
+
+
+def choose_period(st, min_value, max_value):
+    if min_value == max_value:
+        return min_value, max_value
+    return st.slider("Periodo", min_value=min_value, max_value=max_value, value=(min_value, max_value))
 
 
 def get_regions(data):
@@ -49,7 +56,7 @@ def load_from_url(st):
     date = st.date_input("Día")
     formatted_date = date.strftime("%d%m%Y")
     url = f"https://www.sanidad.gob.es/profesionales/saludPublica/ccayes/alertasActual/nCov/documentos/Datos_Capacidad_Asistencial_Historico_{formatted_date}.csv"
-    st.write(f'Origen de los datos: {url}')
+    st.write(f"Origen de los datos: {url}")
     return st.cache(parse_data)(url)
 
 
