@@ -8,14 +8,6 @@ def altair_chart(chart_data):
     st.line_chart(chart_data)
 
 
-def hospitalizations():
-    st.header("Ocupación hospitalaria")
-    data = hospitals.load_data(st=st)
-    if data is None:
-        st.stop()
-    hospitals.occupation_by_region(st=st, data=data)
-
-
 def cases_deaths():
     st.header("Casos y muertes")
     data = load_cases_deaths_data()
@@ -69,6 +61,10 @@ def parse_cases_deaths_data(io):
     data = pd.read_csv(io, sep=",", encoding="latin")
     data["fecha"] = pd.to_datetime(data["fecha"], format="%Y-%m-%d")
     return data
+
+
+def hospitalizations():
+    return hospitals.hospitalizations(st=st)
 
 
 def set_task(task):
