@@ -9,11 +9,13 @@ def main():
     st.set_page_config(
         page_title=TITLE,
         layout="wide",
-        menu_items={"About": "Brough to you by Goyo"},
+        menu_items={"About": "Hecho por Goyo con mucho trabajo."},
     )
     st.title(TITLE)
 
-    date = st.date_input("Día")
+    col1, col2 = st.columns(2)
+
+    date = col1.date_input("Día")
 
     url = hospitals.url_by_date(date=date)
 
@@ -24,7 +26,7 @@ def main():
     if data is None:
         st.stop()
 
-    region = st.selectbox("Comunidad", ["ESPAÑA"] + hospitals.get_regions(data), key=0)
+    region = col2.selectbox("Comunidad", ["ESPAÑA"] + hospitals.get_regions(data), key=0)
 
     region_data = hospitals.get_occupation_by_region(data=data, region=region)
     min_date, max_date = region_data.index[[0, -1]].date
