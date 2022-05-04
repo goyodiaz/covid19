@@ -17,7 +17,7 @@ def main():
 
     url = hospitals.url_by_date(date=date)
 
-    st.write(f"Origen de los datos: {url}")
+    st.write(f"[Origen de los datos]({url})")
 
     # XXX decouple streamlit and parsing
     data = st.cache(hospitals.parse_data)(url)
