@@ -30,6 +30,6 @@ def parse_data(io):
     if not io:
         return None
     data = pd.read_csv(io, sep=";", encoding="latin")
-    data["Fecha"] = pd.to_datetime(data["Fecha"], format="%d/%m/%Y")
+    data["Fecha"] = pd.to_datetime(data["Fecha"], format="%d/%m/%Y", errors="coerce")
     data = data.dropna(subset="Fecha")
     return data

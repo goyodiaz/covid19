@@ -16,6 +16,15 @@ class TestHospitals(unittest.TestCase):
         data = hospitals.parse_data(io=StringIO(text))
         self.assertTrue(data["Fecha"].notna().all())
 
+    def test_parse_data_discards_numeric_dates(self):
+        text = (
+            "Fecha;Unidad;COD_CCAA;CCAA;Cod_Provincia;Provincia;TOTAL_CAMAS;OCUPADAS_COVID19;OCUPADAS_NO_COVID19;INGRESOS_COVID19;ALTAS_24h_COVID19\n"
+            "18/04/2022;U. Críticas SIN respirador;16;PAÍS VASCO;1;Araba/Álava;8;0;0;0;0\n"
+            "44697;U. Críticas SIN respirador;16;PAÍS VASCO;1;Araba/Álava;8;0;0;0;0\n"
+        )
+        data = hospitals.parse_data(io=StringIO(text))
+        self.assertTrue(data["Fecha"].notna().all())
+
     def test_get_regions(self):
         text = (
             "Fecha;Unidad;COD_CCAA;CCAA;Cod_Provincia;Provincia;TOTAL_CAMAS;OCUPADAS_COVID19;OCUPADAS_NO_COVID19;INGRESOS_COVID19;ALTAS_24h_COVID19\n"
